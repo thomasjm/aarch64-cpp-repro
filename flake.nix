@@ -6,7 +6,6 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-24.11";
-  # inputs.nixpkgs.url = "github:codedownio/nixpkgs/release-24.11-codedown-apr17-2025";
 
   outputs = { self, flake-utils, gitignore, haskellNix, nixpkgs }:
     flake-utils.lib.eachSystem ["x86_64-linux"] (system:
@@ -15,20 +14,6 @@
 
         overlays = [
           haskellNix.overlay
-
-          # Set enableNativeBignum flag on compiler
-          (final: prev: {
-            haskell-nix = let
-              shouldPatch = name: compiler: prev.lib.hasPrefix compiler-nix-name name;
-
-              overrideCompiler = name: compiler: (compiler.override {
-                enableNativeBignum = true;
-              });
-            in
-              prev.lib.recursiveUpdate prev.haskell-nix {
-                compiler = prev.lib.mapAttrs overrideCompiler (prev.lib.filterAttrs shouldPatch prev.haskell-nix.compiler);
-              };
-          })
 
           # Configure hixProject
           (final: prev: {
