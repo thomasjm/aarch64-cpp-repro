@@ -37,7 +37,7 @@ library:
   source-dirs: src
 
 executables:
-  aarch64-cpp-repro-exe:
+  aarch64-cpp-repro:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -47,14 +47,3 @@ executables:
     dependencies:
     - aarch64-cpp-repro
     - pandoc-types
-
-tests:
-  aarch64-cpp-repro-test:
-    main:                Spec.hs
-    source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - aarch64-cpp-repro

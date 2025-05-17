@@ -6,14 +6,12 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-24.11";
-  inputs.nixpkgsMaster.url = "github:NixOS/nixpkgs/master";
+  # inputs.nixpkgs.url = "github:codedownio/nixpkgs/release-24.11-codedown-apr17-2025";
 
-  outputs = { self, flake-utils, gitignore, haskellNix, nixpkgs, nixpkgsMaster }:
+  outputs = { self, flake-utils, gitignore, haskellNix, nixpkgs }:
     flake-utils.lib.eachSystem ["x86_64-linux"] (system:
       let
-        compiler-nix-name = "ghc9121";
-
-        pkgsMaster = import nixpkgsMaster { inherit system; };
+        compiler-nix-name = "ghc9122";
 
         overlays = [
           haskellNix.overlay
@@ -42,41 +40,29 @@
 
                 modules = [{
                   packages.aarch64-cpp-repro.components.exes.aarch64-cpp-repro.dontStrip = false;
-                } (
-                  pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin (import ./nix/macos-modules.nix { inherit pkgs; })
-                )];
+                }];
               };
           })
         ];
 
         pkgs = import nixpkgs { inherit system overlays; inherit (haskellNix) config; };
 
-        flake = (pkgs.hixProject compiler-nix-name).flake {};
-        flakeStatic = (pkgs.pkgsCross.musl64.hixProject compiler-nix-name).flake {};
-        flakeAarch64Linux = (pkgs.pkgsCross.aarch64-multiplatform.hixProject compiler-nix-name).flake {};
-
       in
         {
           devShells = {
             default = pkgs.mkShell {
-              NIX_PATH = "nixpkgs=${pkgsMaster.path}";
               buildInputs = [];
             };
           };
 
-          packages = (rec {
-            inherit (pkgs) cabal2nix stack;
+          packages = ({
+            normal = ((pkgs.hixProject compiler-nix-name).flake {}).packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
+            static = ((pkgs.pkgsCross.musl64.hixProject compiler-nix-name).flake {}).packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
+            aarch64 = ((pkgs.pkgsCross.aarch64-multiplatform.hixProject compiler-nix-name).flake {}).packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
+            aarch64Static = ((pkgs.pkgsCross.aarch64-multiplatform-musl.hixProject compiler-nix-name).flake {}).packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
 
-            default = static;
-
-            static = flakeStatic.packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
-            dynamic = flake.packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
-            aarch64Linux = flakeAarch64Linux.packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
-
-            nixpkgsPath = pkgsMaster.writeShellScriptBin "nixpkgsPath.sh" "echo -n ${pkgsMaster.path}";
+            hackage = (pkgs.pkgsCross.aarch64-multiplatform-musl.haskell-nix.hackage-package { compiler-nix-name = "ghc9122"; name = "pandoc-types"; }).components.library;
           });
-
-          inherit flake;
         }
     );
 
