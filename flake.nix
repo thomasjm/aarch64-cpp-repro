@@ -42,9 +42,9 @@
 
           packages = ({
             normal = ((pkgs.hixProject compiler-nix-name).flake {}).packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
-            static = ((pkgs.pkgsCross.musl64.hixProject compiler-nix-name).flake {}).packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
-            aarch64 = ((pkgs.pkgsCross.aarch64-multiplatform.hixProject compiler-nix-name).flake {}).packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
-            aarch64Static = ((pkgs.pkgsCross.aarch64-multiplatform-musl.hixProject compiler-nix-name).flake {}).packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
+            musl64 = ((pkgs.pkgsCross.musl64.hixProject compiler-nix-name).flake {}).packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
+            aarch64-multiplatform = ((pkgs.pkgsCross.aarch64-multiplatform.hixProject compiler-nix-name).flake {}).packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
+            aarch64-multiplatform-musl = ((pkgs.pkgsCross.aarch64-multiplatform-musl.hixProject compiler-nix-name).flake {}).packages."aarch64-cpp-repro:exe:aarch64-cpp-repro";
 
             hackage = (pkgs.pkgsCross.aarch64-multiplatform-musl.haskell-nix.hackage-package { compiler-nix-name = "ghc9122"; name = "pandoc-types"; }).components.library;
           });
